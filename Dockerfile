@@ -27,7 +27,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # BƯỚC 6: Copy toàn bộ source code
 COPY backend/ ./backend/
-COPY frontend/ ./frontend/
+COPY UI_UX/ ./frontend/
 
 # BƯỚC 7: Biến môi trường mặc định
 ENV FLASK_APP=backend/app.py
