@@ -1,63 +1,32 @@
-# ============================================================
-# DOCKER-COMPOSE.YML — EduMS (Flask + MySQL)
-# Tác giả phần DevOps: Phan Tấn Dũng
-# Cách dùng: docker compose up --build
-# ============================================================
-
 version: '3.8'
-
 services:
-
-  # ──────────────────────────────────────────────────────────
-  # SERVICE 1: MySQL Database
-  # ──────────────────────────────────────────────────────────
   db:
     image: mysql:8.0
-    # Tên container khi chạy "docker ps"
     container_name: edums_mysql
     restart: always
-
     environment:
-      # Tạo sẵn database "edums" và user "appuser" lúc khởi động
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: edums         # ← khớp với DB_NAME trong config.py
-      MYSQL_USER: appuser           # ← khớp với DB_USER trong config.py
-      MYSQL_PASSWORD: apppassword   # ← khớp với DB_PASSWORD trong config.py
-
-    # Lưu dữ liệu ra ngoài container
-    # Không có dòng này → mất dữ liệu khi tắt container
+      MYSQL_DATABASE: edums
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppassword
     volumes:
       - edums_db_data:/var/lib/mysql
-
-    # Mở cổng 3306 ra máy thật (để xem bằng MySQL Workbench nếu cần)
     ports:
       - "3306:3306"
-
-    # Kiểm tra MySQL sẵn sàng trước khi Flask kết nối
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s   # Cho MySQL 30s khởi động trước khi check
-
-  # ──────────────────────────────────────────────────────────
-  # SERVICE 2: Flask App (Backend + Frontend)
-  # ──────────────────────────────────────────────────────────
+      start_period: 30s
   app:
-    # Build từ Dockerfile ở thư mục hiện tại
     build: .
     container_name: edums_flask
     restart: always
-
-    # Map cổng: máy thật:container
-    # Truy cập tại http://localhost:5000
     ports:
       - "5000:5000"
-
-    # Biến môi trường truyền vào config.py
     environment:
-      DB_HOST: db             # "db" = tên service MySQL bên trên (KHÔNG phải localhost!)
+      DB_HOST: db
       DB_PORT: 3306
       DB_USER: appuser
       DB_PASSWORD: apppassword
@@ -65,22 +34,11 @@ services:
       SECRET_KEY: edums_jwt_secret_2024
       FLASK_ENV: development
       PORT: 5000
-
-    # Mount code local vào container
-    # Sửa code trên máy → tự reload, không cần build lại
     volumes:
-  - ./backend:/app/backend
-  - ./UI_UX:/app/frontend
-
-    # Đợi MySQL healthy xong mới start Flask
+      - ./backend:/app/backend
+      - ./UI_UX:/app/frontend
     depends_on:
       db:
         condition: service_healthy
-
-# ──────────────────────────────────────────────────────────
-# VOLUMES
-# ──────────────────────────────────────────────────────────
 volumes:
   edums_db_data:
-    # Dữ liệu tồn tại kể cả khi container bị xóa
-    # Muốn xóa hẳn: docker compose down -v
