@@ -17,6 +17,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
   app:
     build: .
     container_name: edums_flask
@@ -30,13 +31,19 @@ services:
       DB_PASSWORD: apppassword
       DB_NAME: edums
       SECRET_KEY: edums_jwt_secret_2024
-      FLASK_ENV: development
-      PORT: 5000
-    volumes:
-      - ./backend:/app/backend
-      - ./UI_UX:/app/frontend
     depends_on:
       db:
         condition: service_healthy
+
+  frontend:
+    image: python:3.11-slim
+    container_name: edums_frontend
+    working_dir: /app
+    volumes:
+      - ./UI_UX:/app/frontend
+    ports:
+      - "8080:8080"
+    command: python -m http.server 8080 --directory /app/frontend
+
 volumes:
   edums_db_data:
