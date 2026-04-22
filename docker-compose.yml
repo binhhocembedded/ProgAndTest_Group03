@@ -42,8 +42,7 @@ services:
     volumes:
       - ./UI_UX:/app/frontend
     ports:
-      - "8080:8080"
-    command: python -m http.server 8080 --directory /app/frontend
-
+     - "8081:8081"
+    command: python -m http.server 8081 --directory /app/frontend
 volumes:
   edums_db_data:
