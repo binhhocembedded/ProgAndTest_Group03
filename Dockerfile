@@ -15,8 +15,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     gcc \
     pkg-config \
+    default-libmysqlclient-dev \
     && rm -rf /var/lib/apt/lists/*
-
 # BƯỚC 4: Copy requirements.txt trước (tận dụng Docker cache)
 # Nếu requirements không đổi → Docker dùng cache, build nhanh hơn
 COPY backend/requirements.txt ./requirements.txt
