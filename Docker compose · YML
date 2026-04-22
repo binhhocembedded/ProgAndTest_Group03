@@ -69,8 +69,8 @@ services:
     # Mount code local vào container
     # Sửa code trên máy → tự reload, không cần build lại
     volumes:
-      - ./backend:/app/backend
-      - ./frontend:/app/frontend
+  - ./backend:/app/backend
+  - ./UI_UX:/app/frontend
 
     # Đợi MySQL healthy xong mới start Flask
     depends_on:
